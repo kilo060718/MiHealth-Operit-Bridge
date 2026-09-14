@@ -28,6 +28,47 @@ jobs:
           mkdir build-src
           unzip -o MiHealth_Operit_Bridge_0.1.zip -d build-src
 
+      - name: Fix JVM target
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("build-src/healthbridge/build.gradle.kts")
+          s = p.read_text()
+
+          old = '''    defaultConfig {
+              applicationId = "com.xixi.healthbridge"
+              minSdk = 26
+              targetSdk = 36
+              versionCode = 1
+              versionName = "0.1.0"
+          }
+          '''
+
+          new = '''    defaultConfig {
+              applicationId = "com.xixi.healthbridge"
+              minSdk = 26
+              targetSdk = 36
+              versionCode = 1
+              versionName = "0.1.0"
+          }
+
+          compileOptions {
+              sourceCompatibility = JavaVersion.VERSION_17
+              targetCompatibility = JavaVersion.VERSION_17
+          }
+
+          kotlinOptions {
+              jvmTarget = "17"
+          }
+          '''
+
+          if old not in s:
+              raise SystemExit("Could not find defaultConfig block")
+
+          p.write_text(s.replace(old, new))
+          PY
+
       - name: Build Debug APK
         working-directory: build-src
         run: gradle assembleDebug
