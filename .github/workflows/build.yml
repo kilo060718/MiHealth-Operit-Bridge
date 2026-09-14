@@ -15,7 +15,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: zulu
           java-version: '17'
 
       - name: Setup Gradle
@@ -23,11 +23,17 @@ jobs:
         with:
           gradle-version: '8.13'
 
+      - name: Extract project
+        run: |
+          mkdir build-src
+          unzip -o MiHealth_Operit_Bridge_0.1.zip -d build-src
+
       - name: Build Debug APK
+        working-directory: build-src
         run: gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: healthbridge-debug
-          path: healthbridge/build/outputs/apk/debug/healthbridge-debug.apk
+          path: build-src/healthbridge/build/outputs/apk/debug/healthbridge-debug.apk
