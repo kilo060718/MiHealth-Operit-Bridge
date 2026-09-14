@@ -36,37 +36,24 @@ jobs:
           p = Path("build-src/healthbridge/build.gradle.kts")
           s = p.read_text()
 
-          old = '''    defaultConfig {
-              applicationId = "com.xixi.healthbridge"
-              minSdk = 26
-              targetSdk = 36
-              versionCode = 1
-              versionName = "0.1.0"
-          }
-          '''
+          if "sourceCompatibility = JavaVersion.VERSION_17" not in s:
+              s = s.replace(
+                  "\ndependencies {",
+                  """
+              
+              compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
 
-          new = '''    defaultConfig {
-              applicationId = "com.xixi.healthbridge"
-              minSdk = 26
-              targetSdk = 36
-              versionCode = 1
-              versionName = "0.1.0"
-          }
+              kotlinOptions {
+                  jvmTarget = "17"
+              }
 
-          compileOptions {
-              sourceCompatibility = JavaVersion.VERSION_17
-              targetCompatibility = JavaVersion.VERSION_17
-          }
+              dependencies {"""
+              )
 
-          kotlinOptions {
-              jvmTarget = "17"
-          }
-          '''
-
-          if old not in s:
-              raise SystemExit("Could not find defaultConfig block")
-
-          p.write_text(s.replace(old, new))
+          p.write_text(s)
           PY
 
       - name: Build Debug APK
